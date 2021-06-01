@@ -1,3 +1,5 @@
+pragma solidity >0.5.4;
+
 interface ERC777 {
     function getName() external view returns (string memory);
     function getSymbol() external view returns (string memory);

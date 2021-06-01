@@ -1,4 +1,4 @@
-pragma solidity >=0.5.16;
+pragma solidity >0.5.4;
 
 import { ERC777 } from './ERC777.sol';
 
@@ -13,7 +13,7 @@ contract Token777 is ERC777 {
     address[] internal defaultOperators;
     mapping(address => bool) internal isDefault;
 
-    constructor(string memory _name, string memory _symbol, uint _initSupply, uint _granularity, address _defaultOperator) public {
+    constructor(string memory _name, string memory _symbol, uint _initSupply, uint _granularity, address _defaultOperator) public{
         name = _name;
         symbol = _symbol;
 
@@ -96,7 +96,7 @@ contract Token777 is ERC777 {
         sendTokens(msg.sender, to, amount, data, data);
     }
 
-    function operatorSend(address from, address to, uint amount, bytes calldata data, bytes calldata operatorData) external {
+    function operatorSend(address from, address to, uint amount, bytes calldata data, bytes calldata operatorData) external{
         require(isOperatorFor(msg.sender, from),
         "You aren't operator for purpose address");
         sendTokens(from, to, amount, data, operatorData);
@@ -113,27 +113,4 @@ contract Token777 is ERC777 {
 
         emit Sent(msg.sender, from, to, amount, data, operatorData);
     }
-
-//    events
-
-    event Sent(
-        address indexed operator,
-        address indexed from,
-        address indexed to,
-        uint amount,
-        bytes data,
-        bytes operatorData
-    );
-    event Burned(
-        address indexed operator,
-        address indexed from,
-        uint amount,
-        bytes data,
-        bytes operatorData
-    );
-    event AuthorizedOperator(
-        address indexed operator,
-        address indexed holder
-    );
-    event RevokedOperator(address indexed operator, address indexed holder);
 }

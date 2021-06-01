@@ -1,10 +1,10 @@
-pragma solidity >=0.5.16;
+pragma solidity >0.5.4;
 pragma experimental ABIEncoderV2;
 
 import { Token777 } from './Token777.sol';
 
 contract Market {
-    Token777 token = new Token777("Token777", "T777", 500000, 1, address(this));
+    Token777 token = new Token777("Token777", "T777", 5000000, 1, address(this));
 
     struct Thing {
         string name;
@@ -16,18 +16,18 @@ contract Market {
     Thing[] things;
 
     modifier onlyOwner(string memory name) {
-        uint index = indexOfThing(name);
+        uint index = uint(indexOfThing(name));
         require(things[index].owner == msg.sender, 'You are not owner');
         _;
     }
 
     modifier thingExists(string memory name) {
-        uint index = indexOfThing(name);
-        require(index != uint(-1), 'This thing doesnt exist');
+        int index = indexOfThing(name);
+        require(index != int(-1), 'This thing doesnt exist');
         _;
     }
 
-    constructor() public{
+    constructor() public {
         token.send(msg.sender, 10000, '');
     }
 
@@ -43,22 +43,22 @@ contract Market {
         token.operatorSend(msg.sender, to, amount, '', '');
     }
 
-    function indexOfThing(string memory name) internal view returns(uint){
+    function indexOfThing(string memory name) internal view returns(int){
         for (uint ind = 0; ind < things.length; ind++) {
             if (keccak256(abi.encodePacked(things[ind].name)) == keccak256(abi.encodePacked(name))) {
-                return ind;
+                return int(ind);
             }
         }
-        return uint(-1);
+        return int(-1);
     }
 
     function createThing(string calldata name) external {
-        require(indexOfThing(name) == uint(-1), 'This thing already exists');
+        require(indexOfThing(name) == int(-1), 'This thing already exists');
         things.push(Thing(name, msg.sender, false, 0));
     }
 
     function burnThing(string calldata name) external onlyOwner(name) thingExists(name) {
-        uint index = indexOfThing(name);
+        uint index = uint(indexOfThing(name));
         for (uint ind = index; index < things.length-1; ind++) {
             things[ind] = things[ind+1];
         }
@@ -67,13 +67,13 @@ contract Market {
     }
 
     function sellThing(string calldata name, uint price) external onlyOwner(name) thingExists(name){
-        uint index = indexOfThing(name);
+        uint index = uint(indexOfThing(name));
         things[index].price = price;
         things[index].isSelling = true;
     }
 
     function buyThing(string calldata name) external thingExists(name){
-        uint index = indexOfThing(name);
+        uint index = uint(indexOfThing(name));
         require(things[index].isSelling, 'This thing is not selling');
         require(token.balanceOf(msg.sender) >= things[index].price, 'You dont have enough money');
         token.operatorSend(msg.sender, things[index].owner, things[index].price, '', '');
@@ -86,7 +86,8 @@ contract Market {
     }
 
     function getThing(string calldata name) external view thingExists(name) returns(Thing memory) {
-        uint index = indexOfThing(name);
+        uint index = uint(indexOfThing(name));
         return things[index];
     }
+
 }
