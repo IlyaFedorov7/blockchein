@@ -85,6 +85,10 @@ contract Market {
         return things;
     }
 
+    function getThingsLength() external view returns(uint) {
+        return things.length;
+    }
+
     function getThing(string calldata name) external view thingExists(name) returns(Thing memory) {
         uint index = uint(indexOfThing(name));
         return things[index];
